@@ -13,12 +13,22 @@ import Cart from './pages/Cart';
 import Orders from './pages/Orders';
 import Reels from './pages/Reels';
 import SellerDashboard from './pages/SellerDashboard';
+import RiderDashboard from './pages/RiderDashboard';
+import OrderTracking from './pages/OrderTracking';
+import OffersManagement from './pages/OffersManagement';
+import AdminDashboard from './pages/AdminDashboard';
+import SocialReels from './pages/SocialReels';
+import RestaurantRegistration from './pages/RestaurantRegistration';
+import RiderRegistration from './pages/RiderRegistration';
+import ActiveDelivery from './pages/ActiveDelivery';
 
-const ProtectedRoute = ({ children, sellerOnly = false }) => {
+const ProtectedRoute = ({ children, sellerOnly = false, riderOnly = false, adminOnly = false }) => {
   const { isAuthenticated, user } = useAuthStore();
 
   if (!isAuthenticated) return <Navigate to="/login" />;
   if (sellerOnly && user?.role !== 'seller') return <Navigate to="/" />;
+  if (riderOnly && user?.role !== 'rider') return <Navigate to="/" />;
+  if (adminOnly && user?.role !== 'admin') return <Navigate to="/" />;
 
   return children;
 };
@@ -36,6 +46,31 @@ function App() {
         <Route path="/restaurants" element={<Restaurants />} />
         <Route path="/restaurants/:id" element={<RestaurantDetail />} />
         <Route path="/reels" element={<Reels />} />
+        <Route path="/social-reels" element={<SocialReels />} />
+        <Route
+          path="/seller/register-restaurant"
+          element={
+            <ProtectedRoute sellerOnly>
+              <RestaurantRegistration />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/rider/register"
+          element={
+            <ProtectedRoute riderOnly>
+              <RiderRegistration />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/rider/delivery/:orderId"
+          element={
+            <ProtectedRoute riderOnly>
+              <ActiveDelivery />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/cart"
           element={
@@ -57,6 +92,38 @@ function App() {
           element={
             <ProtectedRoute sellerOnly>
               <SellerDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/rider/dashboard"
+          element={
+            <ProtectedRoute riderOnly>
+              <RiderDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/orders/:orderId/track"
+          element={
+            <ProtectedRoute>
+              <OrderTracking />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/seller/offers"
+          element={
+            <ProtectedRoute sellerOnly>
+              <OffersManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute adminOnly>
+              <AdminDashboard />
             </ProtectedRoute>
           }
         />
