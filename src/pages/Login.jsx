@@ -19,7 +19,19 @@ const Login = () => {
       toast.success('Welcome back!');
       navigate(data.user.role === 'seller' ? '/seller/dashboard' : '/restaurants');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Login failed');
+      const errorData = error.response?.data;
+      if (errorData?.userId) {
+        toast.error(errorData.message);
+        navigate('/verify-account', { 
+          state: { 
+            userId: errorData.userId,
+            email: formData.email,
+            phone: ''
+          } 
+        });
+      } else {
+        toast.error(errorData?.message || 'Login failed');
+      }
     } finally {
       setLoading(false);
     }

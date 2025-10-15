@@ -21,9 +21,14 @@ const Register = () => {
     setLoading(true);
     try {
       const { data } = await authAPI.register(formData);
-      setAuth(data.user, data.token);
-      toast.success('Account created successfully!');
-      navigate(data.user.role === 'seller' ? '/seller/dashboard' : '/restaurants');
+      toast.success(data.message || 'Registration successful!');
+      navigate('/verify-account', { 
+        state: { 
+          userId: data.userId, 
+          email: data.email, 
+          phone: data.phone 
+        } 
+      });
     } catch (error) {
       toast.error(error.response?.data?.message || 'Registration failed');
     } finally {
