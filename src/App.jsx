@@ -7,7 +7,6 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import VerifyAccount from './pages/VerifyAccount';
-import GoogleAuthSuccess from './pages/GoogleAuthSuccess';
 import Restaurants from './pages/Restaurants';
 import RestaurantDetail from './pages/RestaurantDetail';
 import Cart from './pages/Cart';
@@ -34,7 +33,6 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/verify-account" element={<VerifyAccount />} />
-        <Route path="/auth/google/success" element={<GoogleAuthSuccess />} />
         <Route path="/restaurants" element={<Restaurants />} />
         <Route path="/restaurants/:id" element={<RestaurantDetail />} />
         <Route path="/reels" element={<Reels />} />
