@@ -5,15 +5,14 @@ import toast from 'react-hot-toast';
 
 const VerifyAccount = () => {
   const [emailOTP, setEmailOTP] = useState('');
-  const [phoneOTP, setPhoneOTP] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { userId, email, phone } = location.state || {};
 
   const handleVerify = async () => {
-    if (!emailOTP || !phoneOTP) {
-      toast.error('Please enter both OTPs');
+    if (!emailOTP) {
+      toast.error('Please enter OTP');
       return;
     }
 
@@ -24,12 +23,7 @@ const VerifyAccount = () => {
         otp: emailOTP,
       });
 
-      await axios.post(`${import.meta.env.VITE_API_URL}/verification/verify-phone`, {
-        userId,
-        otp: phoneOTP,
-      });
-
-      toast.success('Account verified successfully!');
+      toast.success('Email verified successfully!');
       navigate('/login');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Verification failed');
@@ -47,21 +41,14 @@ const VerifyAccount = () => {
     }
   };
 
-  const resendPhoneOTP = async () => {
-    try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/verification/resend-phone-otp`, { userId });
-      toast.success('Phone OTP sent');
-    } catch (error) {
-      toast.error('Failed to send OTP');
-    }
-  };
+
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
       <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
         <h2 className="text-3xl font-bold text-center mb-2">Verify Your Account</h2>
         <p className="text-center text-gray-600 mb-8">
-          We've sent OTPs to your email and phone
+          We've sent an OTP to your email
         </p>
 
         <div className="space-y-4">
@@ -78,22 +65,6 @@ const VerifyAccount = () => {
             <p className="text-xs text-gray-500 mt-1">Sent to: {email}</p>
             <button onClick={resendEmailOTP} className="text-primary text-sm mt-1">
               Resend Email OTP
-            </button>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Phone OTP</label>
-            <input
-              type="text"
-              maxLength="6"
-              className="input-field"
-              placeholder="Enter 6-digit OTP"
-              value={phoneOTP}
-              onChange={e => setPhoneOTP(e.target.value)}
-            />
-            <p className="text-xs text-gray-500 mt-1">Sent to: {phone}</p>
-            <button onClick={resendPhoneOTP} className="text-primary text-sm mt-1">
-              Resend Phone OTP
             </button>
           </div>
 
