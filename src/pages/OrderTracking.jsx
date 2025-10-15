@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import io from 'socket.io-client';
+import GoogleMap from '../components/GoogleMap';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
@@ -77,17 +78,47 @@ export default function OrderTracking() {
             <p className="text-sm text-gray-600">Payment: {order.paymentMethod}</p>
           </div>
 
-          {order.rider && (
-            <div className="border-t pt-4 mt-4">
-              <h2 className="font-semibold mb-2">Delivery Partner</h2>
-              <p className="text-sm text-gray-600">Vehicle: {order.rider.vehicleType}</p>
-              {riderLocation && (
-                <p className="text-sm text-green-600">
-                  Live Location: {riderLocation.lat.toFixed(4)}, {riderLocation.lng.toFixed(4)}
-                </p>
-              )}
-            </div>
-          )}
+
+        </div>
+
+        {order.rider && (
+          <div className="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 className="font-semibold mb-4">Delivery Partner</h2>
+            <p className="text-sm text-gray-600 mb-2">Vehicle: {order.rider.vehicleType}</p>
+            <p className="text-sm text-gray-600 mb-2">Phone: {order.rider.user?.phone}</p>
+            {riderLocation && (
+              <p className="text-sm text-green-600 mb-4">📍 Live tracking active</p>
+            )}
+          </div>
+        )}
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="font-semibold mb-4">Live Map</h2>
+          <GoogleMap
+            center={riderLocation || order.deliveryAddress?.coordinates}
+            zoom={15}
+            height="500px"
+            markers={[
+              order.restaurant?.address?.coordinates && {
+                position: order.restaurant.address.coordinates,
+                title: 'Restaurant',
+                icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                info: `<strong>${order.restaurant.name}</strong><br/>Pickup Location`,
+              },
+              order.deliveryAddress?.coordinates && {
+                position: order.deliveryAddress.coordinates,
+                title: 'Delivery Address',
+                icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
+                info: '<strong>Delivery Location</strong>',
+              },
+              riderLocation && {
+                position: riderLocation,
+                title: 'Rider',
+                icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                info: '<strong>Delivery Partner</strong><br/>Live Location',
+              },
+            ].filter(Boolean)}
+          />
         </div>
       </div>
     </div>

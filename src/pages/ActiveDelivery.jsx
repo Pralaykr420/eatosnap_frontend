@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import locationService from '../services/locationService';
+import GoogleMap from '../components/GoogleMap';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -106,12 +107,41 @@ export default function ActiveDelivery() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="font-bold mb-4">Delivery Address</h2>
-          <p className="text-gray-600">{order.deliveryAddress?.street}</p>
-          <p className="text-gray-600">
-            {order.deliveryAddress?.city}, {order.deliveryAddress?.state} - {order.deliveryAddress?.pincode}
-          </p>
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <h2 className="font-bold mb-4">Locations</h2>
+          <div className="space-y-2 mb-4">
+            <div>
+              <p className="font-semibold text-sm">Pickup (Restaurant):</p>
+              <p className="text-sm text-gray-600">{order.restaurant?.name}</p>
+              <p className="text-sm text-gray-600">{order.restaurant?.phone}</p>
+            </div>
+            <div>
+              <p className="font-semibold text-sm">Delivery Address:</p>
+              <p className="text-sm text-gray-600">{order.deliveryAddress?.street}</p>
+              <p className="text-sm text-gray-600">
+                {order.deliveryAddress?.city}, {order.deliveryAddress?.state} - {order.deliveryAddress?.pincode}
+              </p>
+            </div>
+          </div>
+          <GoogleMap
+            center={order.restaurant?.address?.coordinates || { lat: 28.6139, lng: 77.2090 }}
+            zoom={14}
+            height="400px"
+            markers={[
+              order.restaurant?.address?.coordinates && {
+                position: order.restaurant.address.coordinates,
+                title: 'Restaurant',
+                icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                info: `<strong>${order.restaurant.name}</strong><br/>Pickup Location`,
+              },
+              order.deliveryAddress?.coordinates && {
+                position: order.deliveryAddress.coordinates,
+                title: 'Delivery',
+                icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
+                info: '<strong>Delivery Location</strong>',
+              },
+            ].filter(Boolean)}
+          />
         </div>
       </div>
     </div>
