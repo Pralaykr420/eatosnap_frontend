@@ -91,8 +91,8 @@ const Register = () => {
 
           <div>
             <label className="block text-sm font-medium mb-2">I am a</label>
-            <div className="flex gap-4">
-              <label className="flex items-center">
+            <div className="grid grid-cols-3 gap-3">
+              <label className="flex items-center justify-center p-3 border-2 rounded-lg cursor-pointer hover:border-primary transition-colors">
                 <input
                   type="radio"
                   name="role"
@@ -101,9 +101,9 @@ const Register = () => {
                   onChange={e => setFormData({ ...formData, role: e.target.value })}
                   className="mr-2"
                 />
-                Customer
+                <span className="text-sm font-medium">🛒 Customer</span>
               </label>
-              <label className="flex items-center">
+              <label className="flex items-center justify-center p-3 border-2 rounded-lg cursor-pointer hover:border-primary transition-colors">
                 <input
                   type="radio"
                   name="role"
@@ -112,7 +112,18 @@ const Register = () => {
                   onChange={e => setFormData({ ...formData, role: e.target.value })}
                   className="mr-2"
                 />
-                Restaurant Owner
+                <span className="text-sm font-medium">🏪 Restaurant</span>
+              </label>
+              <label className="flex items-center justify-center p-3 border-2 rounded-lg cursor-pointer hover:border-primary transition-colors">
+                <input
+                  type="radio"
+                  name="role"
+                  value="rider"
+                  checked={formData.role === 'rider'}
+                  onChange={e => setFormData({ ...formData, role: e.target.value })}
+                  className="mr-2"
+                />
+                <span className="text-sm font-medium">🚴 Rider</span>
               </label>
             </div>
           </div>

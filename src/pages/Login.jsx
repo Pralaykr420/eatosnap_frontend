@@ -17,7 +17,17 @@ const Login = () => {
       const { data } = await authAPI.login(formData);
       setAuth(data.user, data.token);
       toast.success('Welcome back!');
-      navigate(data.user.role === 'seller' ? '/seller/dashboard' : '/restaurants');
+      
+      // Role-based redirect
+      if (data.user.role === 'seller') {
+        navigate('/seller/dashboard');
+      } else if (data.user.role === 'rider') {
+        navigate('/rider/dashboard');
+      } else if (data.user.role === 'admin') {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/restaurants');
+      }
     } catch (error) {
       const errorData = error.response?.data;
       if (errorData?.userId) {
