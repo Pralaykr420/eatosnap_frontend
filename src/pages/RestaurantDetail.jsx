@@ -4,11 +4,15 @@ import { restaurantAPI, productAPI } from '../services/api';
 import { useCartStore } from '../store/cartStore';
 import { FiStar, FiClock, FiPlus } from 'react-icons/fi';
 import toast from 'react-hot-toast';
+import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const RestaurantDetail = () => {
   const { id } = useParams();
   const [restaurant, setRestaurant] = useState(null);
   const [products, setProducts] = useState([]);
+  const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const addItem = useCartStore(state => state.addItem);
 
@@ -18,12 +22,14 @@ const RestaurantDetail = () => {
 
   const fetchData = async () => {
     try {
-      const [restaurantRes, productsRes] = await Promise.all([
+      const [restaurantRes, productsRes, offersRes] = await Promise.all([
         restaurantAPI.getOne(id),
         productAPI.getAll({ restaurant: id }),
+        axios.get(`${API_URL}/offers?restaurant=${id}`),
       ]);
       setRestaurant(restaurantRes.data.restaurant);
       setProducts(productsRes.data.products);
+      setOffers(offersRes.data.offers || []);
     } catch (error) {
       toast.error('Failed to load restaurant');
     } finally {
@@ -65,6 +71,29 @@ const RestaurantDetail = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {offers.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold mb-4">🎁 Active Offers</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {offers.map(offer => (
+                <div key={offer._id} className="bg-gradient-to-r from-orange-100 to-yellow-100 rounded-lg p-4 border-2 border-orange-300">
+                  {offer.image && (
+                    <img src={offer.image} alt={offer.title} className="w-full h-32 object-cover rounded-lg mb-3" />
+                  )}
+                  <h3 className="font-bold text-lg text-orange-700">{offer.title}</h3>
+                  <p className="text-sm text-gray-700 mb-2">{offer.description}</p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-2xl font-bold text-green-600">{offer.discountPercentage}% OFF</span>
+                    <span className="text-xs text-gray-600">
+                      Valid till {new Date(offer.validTill).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <h2 className="text-3xl font-bold mb-6">Menu</h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.map(product => (

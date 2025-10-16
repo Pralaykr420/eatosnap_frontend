@@ -170,6 +170,15 @@ export default function SocialReels() {
                 <h3 className="font-bold">{reel.title}</h3>
                 <p className="text-gray-600 text-sm">{reel.description}</p>
 
+                {reel.restaurant && (
+                  <button
+                    onClick={() => window.location.href = `/restaurants/${reel.restaurant._id}`}
+                    className="mt-3 bg-orange-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-orange-600 flex items-center gap-2"
+                  >
+                    🏪 Visit {reel.restaurant.name}
+                  </button>
+                )}
+
                 <div className="flex gap-6 mt-4">
                   <button onClick={() => handleLike(reel._id)} className="flex items-center gap-2">
                     ❤️ {reel.likes?.length || 0}

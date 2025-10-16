@@ -103,15 +103,18 @@ export default function RiderDashboard() {
               {orders.map((order) => (
                 <div key={order._id} className="border rounded-lg p-4">
                   <div className="flex justify-between items-start">
-                    <div>
+                    <div className="flex-1">
                       <p className="font-semibold">Order #{order._id.slice(-6)}</p>
                       <p className="text-sm text-gray-600">Restaurant: {order.restaurant?.name}</p>
+                      <p className="text-sm text-gray-600">Restaurant Phone: {order.restaurant?.phone}</p>
+                      <p className="text-sm text-gray-600">Customer: {order.user?.name}</p>
+                      <p className="text-sm text-gray-600">Customer Phone: {order.user?.phone}</p>
                       <p className="text-sm text-gray-600">Amount: ₹{order.totalAmount}</p>
-                      <p className="text-sm text-green-600">Earn: ₹{order.riderEarnings}</p>
+                      <p className="text-sm text-green-600 font-semibold">Your Earning: ₹{order.riderEarnings}</p>
                     </div>
                     <button
                       onClick={() => acceptOrder(order._id)}
-                      className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+                      className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
                     >
                       Accept
                     </button>
