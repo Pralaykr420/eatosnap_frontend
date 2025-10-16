@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useAuthStore } from '../store/authStore';
+import toast from 'react-hot-toast';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 export default function SocialReels() {
   const [reels, setReels] = useState([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const { isAuthenticated } = useAuthStore();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -27,6 +32,11 @@ export default function SocialReels() {
   };
 
   const handleLike = async (reelId) => {
+    if (!isAuthenticated) {
+      toast.error('Please login to like reels');
+      navigate('/login');
+      return;
+    }
     try {
       const token = localStorage.getItem('token');
       await axios.post(`${API_URL}/reels/${reelId}/like`, {}, {
@@ -39,24 +49,36 @@ export default function SocialReels() {
   };
 
   const handleSave = async (reelId) => {
+    if (!isAuthenticated) {
+      toast.error('Please login to save reels');
+      navigate('/login');
+      return;
+    }
     try {
       const token = localStorage.getItem('token');
       await axios.post(`${API_URL}/reels/${reelId}/save`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      alert('Reel saved!');
+      toast.success('Reel saved!');
     } catch (error) {
       console.error(error);
     }
   };
 
   const handleShare = async (reelId) => {
+    // Share works without login
     try {
-      const token = localStorage.getItem('token');
-      await axios.post(`${API_URL}/reels/${reelId}/share`, {}, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      alert('Share count updated!');
+      await axios.post(`${API_URL}/reels/${reelId}/share`);
+      const shareUrl = `${window.location.origin}/social-reels?reel=${reelId}`;
+      if (navigator.share) {
+        await navigator.share({
+          title: 'Check out this food reel!',
+          url: shareUrl,
+        });
+      } else {
+        navigator.clipboard.writeText(shareUrl);
+        toast.success('Link copied to clipboard!');
+      }
       fetchReels();
     } catch (error) {
       console.error(error);
@@ -64,12 +86,17 @@ export default function SocialReels() {
   };
 
   const handleFollow = async (userId) => {
+    if (!isAuthenticated) {
+      toast.error('Please login to follow users');
+      navigate('/login');
+      return;
+    }
     try {
       const token = localStorage.getItem('token');
       await axios.post(`${API_URL}/social/follow/${userId}`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      alert('Followed!');
+      toast.success('Followed!');
     } catch (error) {
       console.error(error);
     }
@@ -77,17 +104,22 @@ export default function SocialReels() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!isAuthenticated) {
+      toast.error('Please login to post reels');
+      navigate('/login');
+      return;
+    }
     try {
       const token = localStorage.getItem('token');
       await axios.post(`${API_URL}/reels`, formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      alert('Reel created!');
+      toast.success('Reel created!');
       setShowCreateForm(false);
       setFormData({ title: '', description: '', videoUrl: '', restaurant: '' });
       fetchReels();
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to create reel');
+      toast.error(error.response?.data?.message || 'Failed to create reel');
     }
   };
 
@@ -96,12 +128,21 @@ export default function SocialReels() {
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Food Reels</h1>
-          <button
-            onClick={() => setShowCreateForm(!showCreateForm)}
-            className="bg-blue-500 text-white px-6 py-2 rounded-lg"
-          >
-            {showCreateForm ? 'Cancel' : 'Create Reel'}
-          </button>
+          {isAuthenticated ? (
+            <button
+              onClick={() => setShowCreateForm(!showCreateForm)}
+              className="bg-blue-500 text-white px-6 py-2 rounded-lg"
+            >
+              {showCreateForm ? 'Cancel' : 'Create Reel'}
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate('/login')}
+              className="bg-orange-500 text-white px-6 py-2 rounded-lg"
+            >
+              Login to Post Reels
+            </button>
+          )}
         </div>
 
         {showCreateForm && (
@@ -156,12 +197,14 @@ export default function SocialReels() {
                     <p className="text-sm text-gray-500">@{reel.restaurant?.name}</p>
                   </div>
                 </div>
-                <button
-                  onClick={() => handleFollow(reel.creator?._id)}
-                  className="bg-blue-500 text-white px-4 py-1 rounded-lg text-sm"
-                >
-                  Follow
-                </button>
+                {isAuthenticated && (
+                  <button
+                    onClick={() => handleFollow(reel.creator?._id)}
+                    className="bg-blue-500 text-white px-4 py-1 rounded-lg text-sm"
+                  >
+                    Follow
+                  </button>
+                )}
               </div>
 
               <video src={reel.videoUrl} controls className="w-full" />
